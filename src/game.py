@@ -1,3 +1,61 @@
+class GameState:
+    def __init__(self, board, current_player=1):
+        self.board = [row[:] for row in board]  # Deep copy
+        self.current_player = current_player
+    
+    def is_terminal(self):
+        """Return (is_terminal, winner) tuple"""
+        # Reutiliza a função win_condition existente
+        if win_condition(self.board, self.current_player):
+            return True, self.current_player
+        return False, None
+    
+    def get_legal_moves(self, player):
+        """Return list of legal moves for the given player"""
+        moves = []
+        board_size = len(self.board)
+        
+        for row in range(board_size):
+            for col in range(len(self.board[0])):
+                if self.board[row][col] != player:
+                    continue
+                
+                # Forward move (reutiliza lógica de move_piece)
+                to_row = row + 1 if player == 1 else row - 1
+                if 0 <= to_row < board_size and self.board[to_row][col] == 0:
+                    moves.append((row, col, None))  # None means forward move
+                
+                # Capture moves (reutiliza lógica de capture_piece)
+                for direction in [-1, 1]:
+                    to_row = row + 1 if player == 1 else row - 1
+                    to_col = col + direction
+                    if 0 <= to_row < board_size and 0 <= to_col < len(self.board[0]):
+                        opponent = 2 if player == 1 else 1
+                        if self.board[to_row][to_col] == opponent:
+                            moves.append((row, col, direction))
+        
+        return moves
+    
+    def apply_move(self, move):
+        """Apply a move and return new GameState"""
+        from_row, from_col, capture_direction = move
+        new_state = GameState(self.board, 3 - self.current_player)  # Switch player
+        
+        if capture_direction is not None:
+            # Reutiliza lógica de capture_piece
+            to_row = from_row + 1 if self.current_player == 1 else from_row - 1
+            to_col = from_col + capture_direction
+            new_state.board[to_row][to_col] = self.current_player
+            new_state.board[from_row][from_col] = 0
+        else:
+            # Reutiliza lógica de move_piece
+            to_row = from_row + 1 if self.current_player == 1 else from_row - 1
+            new_state.board[to_row][from_col] = self.current_player
+            new_state.board[from_row][from_col] = 0
+        
+        return new_state
+
+
 def win_condition(board, player):
     opponent = 2 if player == 1 else 1
     target_row = len(board) - 1 if player == 1 else 0

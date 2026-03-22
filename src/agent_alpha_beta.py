@@ -1,12 +1,25 @@
 import time
 
-class AgentMinimax:
+class AgentAlphaBeta:
     def __init__(self, player, heuristic_func, time_limit=1.0):
         self.player = player
         self.heuristic = heuristic_func
-        self.time_limit = time_limit # Limite fixo por jogada 
-        self.nodes_expanded = 0      # Instrumentação obrigatória
+        self.time_limit = time_limit 
+        self.nodes_expanded = 0      
         self.start_time = 0
+
+    def order_moves(self, state, moves):
+        """
+        Move ordering obrigatório. 
+        Prioriza capturas, o que aumenta a eficiência da poda Alpha-Beta significativamente.
+        """
+        def move_score(move):
+            (from_r, from_c), (to_r, to_c) = move
+            if state.board[to_r][to_c] != 0:
+                return 1 # Captura tem prioridade
+            return 0
+        
+        return sorted(moves, key=move_score, reverse=True)
 
     def get_best_move(self, state):
         self.nodes_expanded = 0
@@ -17,52 +30,60 @@ class AgentMinimax:
         # Iterative Deepening
         try:
             while True:
-                # Interrompe se o tempo limite estourar antes da próxima profundidade
                 if time.time() - self.start_time >= self.time_limit:
                     break
                     
-                current_best_move, _ = self.minimax(state, depth, True)
+                # Inicia o Alpha-Beta com limites infinitos
+                current_best_move, _ = self.alpha_beta(state, depth, float('-inf'), float('inf'), True)
                 
                 if current_best_move:
                     best_move = current_best_move
                     
                 depth += 1
         except TimeoutError:
-            pass # Estourou o tempo no meio da recursão
+            pass 
             
         return best_move, self.nodes_expanded, depth - 1
 
-    def minimax(self, state, depth, maximizing_player):
-        # Checagem de tempo
+    def alpha_beta(self, state, depth, alpha, beta, maximizing_player):
         if time.time() - self.start_time >= self.time_limit:
             raise TimeoutError()
 
         is_term, _ = state.is_terminal()
-        # Teste de terminal e limite de profundidade
         if depth == 0 or is_term:
             self.nodes_expanded += 1
             return None, self.heuristic(state, self.player)
 
-        # Geração de ações
         moves = state.get_legal_moves(state.current_player)
+        moves = self.order_moves(state, moves) # Aplica a ordenação das jogadas 
+
         best_move = moves[0] if moves else None
 
         if maximizing_player:
             max_eval = float('-inf')
             for move in moves:
                 new_state = state.apply_move(move)
-                # Chamada recursiva SEM passagem de alpha ou beta
-                _, eval = self.minimax(new_state, depth - 1, False)
+                _, eval = self.alpha_beta(new_state, depth - 1, alpha, beta, False)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = move
+                
+                # Atualiza o Alpha e faz a poda 
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break # Poda! O oponente já tem uma opção melhor antes
             return best_move, max_eval
         else:
             min_eval = float('inf')
             for move in moves:
                 new_state = state.apply_move(move)
-                _, eval = self.minimax(new_state, depth - 1, True)
+                _, eval = self.alpha_beta(new_state, depth - 1, alpha, beta, True)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = move
+                
+                # Atualiza o Beta e faz a poda 
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break # Poda! Nós já temos uma opção melhor antes
             return best_move, min_eval
