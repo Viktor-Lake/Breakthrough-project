@@ -12,7 +12,7 @@
 \usepackage{hyperref}
 
 \title{Trabalho 1: Busca Adversarial em Jogos\\Agente Inteligente para Breakthrough}
-\author{Pedro Henrique dos Reis Arcoverde - 254719 \and Nome do Aluno 2 \and Nome do Aluno 3 \and Nome do Aluno 4}
+\author{Pedro Henrique dos Reis Arcoverde - 254719 \and Pedro Henrique Pinheiro Linhares - 175807 \and Nome do Aluno 3 \and Nome do Aluno 4 \and Nome do Aluno 5}
 \date{Março de 2025}
 
 \begin{document}
@@ -121,6 +121,45 @@ Função ORDENAR-JOGADAS(estado, acoes):
         Se TIPO-MOVIMENTO(ação) == CAPTURA:
             ação.score = 10
     Retorna acoes ordenadas de forma decrescente pelo score
+\end{verbatim}
+
+
+\section{Funções Heurísticas}
+Em qualquer tomada de decisão, alguns aspectos são levados em conta. Até para dar um passo, inconscientemente, são calculadas as possibilidades que essa decisão pode gerar. Desta forma, é possível criar um algoritmo que calcule o quão atrativa uma decisão pode ser.
+Para o caso do Breakthrough, é essencial escolher uma heurística, pois o número de combinações pode alcançar valores exponenciais. Portanto, decidimos utilizar duas heurísticas diferentes para poder comparar quais características são melhores e, assim, aumentar as chances de vitória no jogo.
+
+\subsection{Diferença de Material}
+Esta heurística foca em calcular a diferença do número de peças entre os oponentes. Portanto, quanto mais peças um jogador tiver, mais chance ele terá de vencer, desta forma, o algoritmo foca em escolher o estado que ele possui mais chance de vencer.
+
+\begin{verbatim}
+Função Diferença_de_Material(estado, jogador):
+    score = 0
+    Para posição em estado:
+        Se valor_posição == 1:
+            score += 1
+        Se valor_posição == 2:
+            score -= 1
+    Se jogador == 2:
+        score = score * (-1)
+    Retorna score
+\end{verbatim}
+
+\subsection{Avanço Médio das Peças}
+Esta heurística foca em calcular o quão vantajoso uma jogada é a partir da distância das peças até o final do tabuleiro. Desta forma, ao longo do jogo cada peça possui uma influência maior na vitória, por exemplo, uma peça que está mais próxima da última fileira do oponente acrescenta um valor maior ao peso desta peça. Por fim, precisamos apenas somar o peso de todas as peças de um jogador e sobtrair pela soma do peso das peças do outro jogador.
+
+\begin{verbatim}
+Função Avanço_Médio_das_Peças(estado, jogador):
+    score = 0
+    total_peças = 0
+    total_por_linha = 0
+    Para posição em estado:
+        Se jogador == 1:
+            total_peças += 1
+            total_por_linha += 1 + ((posição + 1) // 8))
+        Se jogador == 2:
+            total_peças += 1
+            total_por_linha += 1 + (7 - (posição + 1) // 8))
+    Retorna score
 \end{verbatim}
 
 \end{document}
