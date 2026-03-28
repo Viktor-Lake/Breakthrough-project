@@ -22,26 +22,32 @@ class AgentAlphaBeta:
     def get_best_move(self, state):
         self.nodes_expanded = 0
         self.start_time = time.time()
+
         best_move = None
         depth = 1
-        
+        completed_depth = 0
+
         # Iterative Deepening
         try:
             while True:
                 if time.time() - self.start_time >= self.time_limit:
                     break
-                    
-                # Inicia o Alpha-Beta com limites infinitos
-                current_best_move, _ = self.alpha_beta(state, depth, float('-inf'), float('inf'), True)
                 
-                if current_best_move:
+                # Inicia o Alpha-Beta com limites infinitos
+                current_best_move, _ = self.alpha_beta(
+                    state, depth, float('-inf'), float('inf'), True
+                )
+
+                if current_best_move is not None:
                     best_move = current_best_move
-                    
+                    completed_depth = depth
+
                 depth += 1
+
         except TimeoutError:
-            pass 
-            
-        return best_move, self.nodes_expanded, depth - 1
+            pass
+
+        return best_move, self.nodes_expanded, completed_depth
 
     def alpha_beta(self, state, depth, alpha, beta, maximizing_player):
         if time.time() - self.start_time >= self.time_limit:

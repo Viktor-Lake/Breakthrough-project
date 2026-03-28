@@ -33,8 +33,8 @@ def run_match(agent_a_cfg, agent_b_cfg, game_size=8, time_limit=1.0, verbose=Fal
         "turns": result["turns"],
         "nodes_p1": result["nodes_p1"],
         "nodes_p2": result["nodes_p2"],
-        "avg_depth_p1": result["avg_depth_p1"],
-        "avg_depth_p2": result["avg_depth_p2"],
+        "max_depth_p1": result["max_depth_p1"],
+        "max_depth_p2": result["max_depth_p2"],
         "avg_time_p1": result["avg_time_p1"],
         "avg_time_p2": result["avg_time_p2"],
     }
@@ -46,19 +46,16 @@ def run_experiments(agent_a_cfg, agent_b_cfg, num_games=10, time_limit=1.0, game
         agent_b_cfg["name"]: 0,
         "draws": 0,
         "total_turns": 0,
-
         "total_nodes_a": 0,
         "total_nodes_b": 0,
-
         "total_depth_a": 0.0,
         "total_depth_b": 0.0,
-
         "total_time_a": 0.0,
         "total_time_b": 0.0,
     }
 
     for i in range(num_games):
-        # Alterna lados
+        # Alterna lados para evitar viés de jogador inicial
         if i % 2 == 0:
             cfg1, cfg2 = agent_a_cfg, agent_b_cfg
             agent_a_player = 1
@@ -68,28 +65,36 @@ def run_experiments(agent_a_cfg, agent_b_cfg, num_games=10, time_limit=1.0, game
 
         result = run_match(cfg1, cfg2, game_size=game_size, time_limit=time_limit, verbose=False)
 
-        winner = result["winner"]
+        winner_player = result["winner"]
         turns = result["turns"]
+
+        # Nome legível do vencedor, só para impressão
+        if winner_player is None:
+            winner_label = "Draw"
+        elif winner_player == 1:
+            winner_label = cfg1["name"]
+        else:
+            winner_label = cfg2["name"]
 
         if agent_a_player == 1:
             nodes_a = result["nodes_p1"]
             nodes_b = result["nodes_p2"]
-            depth_a = result["avg_depth_p1"]
-            depth_b = result["avg_depth_p2"]
+            depth_a = result["max_depth_p1"]
+            depth_b = result["max_depth_p2"]
             time_a = result["avg_time_p1"]
             time_b = result["avg_time_p2"]
         else:
             nodes_a = result["nodes_p2"]
             nodes_b = result["nodes_p1"]
-            depth_a = result["avg_depth_p2"]
-            depth_b = result["avg_depth_p1"]
+            depth_a = result["max_depth_p2"]
+            depth_b = result["max_depth_p1"]
             time_a = result["avg_time_p2"]
             time_b = result["avg_time_p1"]
 
-        # Resultado
-        if winner is None:
+        # Resultado correto: comparar winner_player com o jogador real do agent A
+        if winner_player is None:
             summary["draws"] += 1
-        elif winner == agent_a_player:
+        elif winner_player == agent_a_player:
             summary[agent_a_cfg["name"]] += 1
         else:
             summary[agent_b_cfg["name"]] += 1
@@ -104,7 +109,7 @@ def run_experiments(agent_a_cfg, agent_b_cfg, num_games=10, time_limit=1.0, game
         summary["total_time_b"] += time_b
 
         print(
-            f"Game {i+1}: winner={winner}, turns={turns}\n"
+            f"Game {i+1}: winner={winner_label}, turns={turns}\n"
             f"  {agent_a_cfg['name']} -> nodes={nodes_a}, depth={depth_a:.2f}, time={time_a:.4f}s\n"
             f"  {agent_b_cfg['name']} -> nodes={nodes_b}, depth={depth_b:.2f}, time={time_b:.4f}s"
         )
@@ -127,19 +132,15 @@ def run_experiments(agent_a_cfg, agent_b_cfg, num_games=10, time_limit=1.0, game
 
     # MÉDIAS
     print(f"Average turns: {summary['total_turns'] / num_games:.2f}")
-
     print(f"Average nodes {agent_a_cfg['name']}: {summary['total_nodes_a'] / num_games:.2f}")
     print(f"Average nodes {agent_b_cfg['name']}: {summary['total_nodes_b'] / num_games:.2f}")
-
-    print(f"Average depth {agent_a_cfg['name']}: {summary['total_depth_a'] / num_games:.2f}")
-    print(f"Average depth {agent_b_cfg['name']}: {summary['total_depth_b'] / num_games:.2f}")
-
+    print(f"Average max depth {agent_a_cfg['name']}: {summary['total_depth_a'] / num_games:.2f}")
+    print(f"Average max depth {agent_b_cfg['name']}: {summary['total_depth_b'] / num_games:.2f}")
     print(f"Average time per move {agent_a_cfg['name']}: {summary['total_time_a'] / num_games:.4f}s")
     print(f"Average time per move {agent_b_cfg['name']}: {summary['total_time_b'] / num_games:.4f}s")
 
 
 if __name__ == "__main__":
-
     agent_alpha_h1 = {
         "name": "AlphaBeta + H1",
         "search": "alphabeta",
@@ -164,5 +165,4 @@ if __name__ == "__main__":
         "heuristic": heuristic_defensive_structures,
     }
 
-    # Rodar aqui o run_experiments para comparar os agentes
-    run_experiments(agent_alpha_h1, agent_minimax_h1, num_games=1, time_limit=1.0)
+    run_experiments(agent_alpha_h2, agent_minimax_h2, num_games=3, time_limit=0.5)

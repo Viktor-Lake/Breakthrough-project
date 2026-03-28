@@ -1,5 +1,5 @@
 from breakthrough import GameState
-from heuristics import heuristic_material_and_advance, heuristic_defensive_structures
+from og_heuristics import heuristic_material_and_advance, heuristic_defensive_structures
 from agent import AIAgent
 
 def print_board(state):

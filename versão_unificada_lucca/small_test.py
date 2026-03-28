@@ -9,16 +9,16 @@ from heuristics import (
 
 def main():
     # Configuração dos agentes
-    agent1 = AgentMinimax(
+    agent1 = AgentAlphaBeta(
         player=1,
         heuristic_func=heuristic_defensive_structures,
-        time_limit=1.0
+        time_limit=10
     )
 
-    agent2 = AgentAlphaBeta(
+    agent2 = AgentMinimax(
         player=2,
         heuristic_func=heuristic_material_and_advance,
-        time_limit=1.0
+        time_limit=10
     )
 
     # Cria jogo
@@ -33,8 +33,10 @@ def main():
     print(f"Turns: {result['turns']}")
     print(f"Nodes P1: {result['nodes_p1']}")
     print(f"Nodes P2: {result['nodes_p2']}")
-    print(f"Avg Depth P1: {result['avg_depth_p1']:.2f}")
-    print(f"Avg Depth P2: {result['avg_depth_p2']:.2f}")
+    print(f"Max Depth P1: {result['max_depth_p1']:.2f}")
+    print(f"Max Depth P2: {result['max_depth_p2']:.2f}")
+    print(f"Avg Time P1: {result['avg_time_p1']:.4f} seconds")
+    print(f"Avg Time P2: {result['avg_time_p2']:.4f} seconds")
 
 
 if __name__ == "__main__":

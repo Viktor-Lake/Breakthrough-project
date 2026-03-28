@@ -160,8 +160,8 @@ class Game:
 
         total_nodes_p1 = 0
         total_nodes_p2 = 0
-        total_depth_p1 = 0
-        total_depth_p2 = 0
+        max_depth_p1 = 0
+        max_depth_p2 = 0
         moves_p1 = 0
         moves_p2 = 0
         total_time_p1 = 0.0
@@ -185,8 +185,8 @@ class Game:
                     "turns": turn,
                     "nodes_p1": total_nodes_p1,
                     "nodes_p2": total_nodes_p2,
-                    "avg_depth_p1": (total_depth_p1 / moves_p1) if moves_p1 else 0,
-                    "avg_depth_p2": (total_depth_p2 / moves_p2) if moves_p2 else 0,
+                    "max_depth_p1": max_depth_p1,
+                    "max_depth_p2": max_depth_p2,
                     "avg_time_p1": (total_time_p1 / moves_p1) if moves_p1 else 0,
                     "avg_time_p2": (total_time_p2 / moves_p2) if moves_p2 else 0,
                 }
@@ -197,7 +197,7 @@ class Game:
                 elapsed = time.time() - start_time  # Stop time
                 total_time_p1 += elapsed
                 total_nodes_p1 += nodes
-                total_depth_p1 += depth
+                max_depth_p1 = max(max_depth_p1, depth)
                 moves_p1 += 1
 
                 if verbose:
@@ -209,7 +209,7 @@ class Game:
                 elapsed = time.time() - start_time  # Stop time
                 total_time_p2 += elapsed
                 total_nodes_p2 += nodes
-                total_depth_p2 += depth
+                max_depth_p2 = max(max_depth_p2, depth)
                 moves_p2 += 1
 
                 if verbose:
@@ -221,8 +221,8 @@ class Game:
                     "turns": turn,
                     "nodes_p1": total_nodes_p1,
                     "nodes_p2": total_nodes_p2,
-                    "avg_depth_p1": (total_depth_p1 / moves_p1) if moves_p1 else 0,
-                    "avg_depth_p2": (total_depth_p2 / moves_p2) if moves_p2 else 0,
+                    "max_depth_p1": max_depth_p1,
+                    "max_depth_p2": max_depth_p2,
                     "avg_time_p1": (total_time_p1 / moves_p1) if moves_p1 else 0,
                     "avg_time_p2": (total_time_p2 / moves_p2) if moves_p2 else 0,
                 }
@@ -235,8 +235,8 @@ class Game:
             "turns": turn,
             "nodes_p1": total_nodes_p1,
             "nodes_p2": total_nodes_p2,
-            "avg_depth_p1": (total_depth_p1 / moves_p1) if moves_p1 else 0,
-            "avg_depth_p2": (total_depth_p2 / moves_p2) if moves_p2 else 0,
+            "max_depth_p1": max_depth_p1,
+            "max_depth_p2": max_depth_p2,
             "avg_time_p1": (total_time_p1 / moves_p1) if moves_p1 else 0,
             "avg_time_p2": (total_time_p2 / moves_p2) if moves_p2 else 0,
         }
