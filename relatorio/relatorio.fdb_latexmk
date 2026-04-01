@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1774201819.10767 "/home/parcv/Documentos/comput/faculdade/IA/Breakthrough-project/relatorio/relatorio.tex" "relatorio.pdf" "relatorio" 1774201821.38085 0
+["pdflatex"] 1774892271.54276 "/home/parcv/Documentos/comput/faculdade/IA/Breakthrough-project/relatorio/relatorio.tex" "relatorio.pdf" "relatorio" 1774892272.45893 0
   "/etc/texmf/web2c/texmf.cnf" 1749778141.00276 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/parcv/Documentos/comput/faculdade/IA/Breakthrough-project/relatorio/relatorio.tex" 1774201818.235 6147 f7e293775f5deecd3a0d7cac2d39fe8c ""
+  "/home/parcv/Documentos/comput/faculdade/IA/Breakthrough-project/relatorio/relatorio.tex" 1774892268.0543 8328 b2e405c597a5b86a9319d61cac57b37e ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm" 1136768653 3584 402da0b29eafbad07963b1224b222f18 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm" 1136768653 3584 13049b61b922a28b158a38aeff75ee9b ""
@@ -101,9 +101,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1749778362.29071 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1749778440 8213942 af8d681624ce195847f0f67c5118b8d5 ""
-  "relatorio.aux" 1774201820.97725 1335 2fa527baa386cc1545ac407803b50a7c "pdflatex"
-  "relatorio.out" 1774201820.98203 1665 0d65e246c0f0ba7f97bb17b031e6100e "pdflatex"
-  "relatorio.tex" 1774201818.235 6147 f7e293775f5deecd3a0d7cac2d39fe8c ""
+  "relatorio.aux" 1774892272.34985 1715 d4db41668fc6916f1ff4eb071717843e "pdflatex"
+  "relatorio.out" 1774892272.35085 2173 1ae897e9a18f000a9343b8a6aa5fdb15 "pdflatex"
+  "relatorio.tex" 1774892268.0543 8328 b2e405c597a5b86a9319d61cac57b37e ""
   (generated)
   "relatorio.aux"
   "relatorio.log"
