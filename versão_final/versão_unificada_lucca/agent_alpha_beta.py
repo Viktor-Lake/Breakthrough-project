@@ -27,13 +27,12 @@ class AgentAlphaBeta:
         depth = 1
         completed_depth = 0
 
-        # Iterative Deepening
         try:
             while True:
+                # Interrompe se o tempo limite estourar antes da próxima profundidade
                 if time.time() - self.start_time >= self.time_limit:
                     break
-                
-                # Inicia o Alpha-Beta com limites infinitos
+
                 current_best_move, _ = self.alpha_beta(
                     state, depth, float('-inf'), float('inf'), True
                 )
@@ -42,10 +41,14 @@ class AgentAlphaBeta:
                     best_move = current_best_move
                     completed_depth = depth
 
+                # Conserto para depth absurdo
+                if time.time() - self.start_time >= self.time_limit:
+                    break 
+
                 depth += 1
 
         except TimeoutError:
-            pass
+            pass  # Estourou o tempo no meio da recursão
 
         return best_move, self.nodes_expanded, completed_depth
 
@@ -60,10 +63,6 @@ class AgentAlphaBeta:
 
         moves = state.get_legal_moves(state.current_player)
         moves = self.order_moves(state, moves) # Aplica a ordenação das jogadas
-
-        # if not moves:
-        #     self.nodes_expanded += 1
-        #     return None, self.heuristic(state, self.player)
 
         best_move = moves[0] if moves else None
 

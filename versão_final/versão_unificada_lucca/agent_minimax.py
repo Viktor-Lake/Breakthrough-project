@@ -15,6 +15,7 @@ class AgentMinimax:
         best_move = None
         depth = 1
         completed_depth = 0
+        commited_nodes = 0
 
         # Iterative Deepening
         try:
@@ -23,17 +24,24 @@ class AgentMinimax:
                 if time.time() - self.start_time >= self.time_limit:
                     break
 
+                self.nodes_expanded = 0  # Conserto de quantidade de nodes absurda
                 current_best_move, _ = self.minimax(state, depth, True)
 
                 if current_best_move is not None:
                     best_move = current_best_move
                     completed_depth = depth 
+                    commited_nodes += self.nodes_expanded  # Conserto de quantidade de nodes absurda
+
+                # Conserto para depth absurdo
+                if time.time() - self.start_time >= self.time_limit:
+                    break
 
                 depth += 1
 
         except TimeoutError:
             pass  # Estourou o tempo no meio da recursão
 
+        self.nodes_expanded = commited_nodes  # Conserto de quantidade de nodes absurda
         return best_move, self.nodes_expanded, completed_depth
 
     def minimax(self, state, depth, maximizing_player):
@@ -42,20 +50,24 @@ class AgentMinimax:
             raise TimeoutError()
 
         is_term, _ = state.is_terminal()
-        # Teste de terminal e limite de profundidade
         if depth == 0 or is_term:
             self.nodes_expanded += 1
             return None, self.heuristic(state, self.player)
 
-        # Geração de ações
         moves = state.get_legal_moves(state.current_player)
-        best_move = moves[0] if moves else None
+
+        if not moves:
+            self.nodes_expanded += 1
+            return None, self.heuristic(state, self.player)
+
+        best_move = moves[0]
 
         if maximizing_player:
             max_eval = float('-inf')
             for move in moves:
+                if time.time() - self.start_time >= self.time_limit:  # Correção para depth absurdo
+                    raise TimeoutError()
                 new_state = state.apply_move(move)
-                # Chamada recursiva SEM passagem de alpha ou beta
                 _, eval = self.minimax(new_state, depth - 1, False)
                 if eval > max_eval:
                     max_eval = eval
@@ -64,6 +76,8 @@ class AgentMinimax:
         else:
             min_eval = float('inf')
             for move in moves:
+                if time.time() - self.start_time >= self.time_limit:  # Correção para depth absurdo
+                    raise TimeoutError()
                 new_state = state.apply_move(move)
                 _, eval = self.minimax(new_state, depth - 1, True)
                 if eval < min_eval:
