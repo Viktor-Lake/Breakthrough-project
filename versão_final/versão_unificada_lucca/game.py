@@ -17,6 +17,9 @@ class GameState:
         for player in (1, 2):
             if win_condition(self.board, player):
                 return True, player
+        for player in (1, 2):  # CONSERTO PARA WIN 
+            if not self.get_legal_moves(player):
+                return True, 3 - player
         return False, None
 
     def get_legal_moves(self, player):

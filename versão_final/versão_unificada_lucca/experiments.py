@@ -124,8 +124,8 @@ def run_experiments(agent_a_cfg, agent_b_cfg, num_games=10, time_limit=1.0, game
         print(
             f"Game {i+1} ({'A=P1,B=P2' if agent_a_player == 1 else 'A=P2,B=P1'}): "
             f"winner={winner_label}, turns={turns}\n"
-            f"  {agent_a_cfg['name']} -> avg_nodes/move={avg_nodes_a:.0f}, depth={depth_a:.2f}, time={time_a:.4f}s\n"
-            f"  {agent_b_cfg['name']} -> avg_nodes/move={avg_nodes_b:.0f}, depth={depth_b:.2f}, time={time_b:.4f}s"
+            f"  {agent_a_cfg['name']} -> avg_nodes={avg_nodes_a:.0f}, avg_depth={depth_a:.2f}, time={time_a:.4f}s\n"
+            f"  {agent_b_cfg['name']} -> avg_nodes={avg_nodes_b:.0f}, avg_depth={depth_b:.2f}, time={time_b:.4f}s"
         )
 
     wins_a = summary[agent_a_cfg["name"]]

@@ -11,11 +11,11 @@ def main():
     # Configuração dos agentes
     agent1 = AgentAlphaBeta(
         player=1,
-        heuristic_func=heuristic_material_and_advance,
+        heuristic_func=heuristic_defensive_structures,
         time_limit=0.5
     )
 
-    agent2 = AgentMinimax(
+    agent2 = AgentAlphaBeta(
         player=2,
         heuristic_func=heuristic_defensive_structures,
         time_limit=0.5

@@ -56,8 +56,23 @@ class AgentAlphaBeta:
         if time.time() - self.start_time >= self.time_limit:
             raise TimeoutError()
 
-        is_term, _ = state.is_terminal()
-        if depth == 0 or is_term:
+        # is_term, _ = state.is_terminal()
+        # if depth == 0 or is_term:
+        #     self.nodes_expanded += 1
+        #     return None, self.heuristic(state, self.player)
+        is_term, winner = state.is_terminal()
+
+        if is_term:
+            self.nodes_expanded += 1
+
+            if winner == self.player:
+                return None, 10000 + depth
+            elif winner is None:
+                return None, 0
+            else:
+                return None, -10000 - depth
+
+        if depth == 0:
             self.nodes_expanded += 1
             return None, self.heuristic(state, self.player)
 
