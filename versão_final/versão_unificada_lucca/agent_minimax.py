@@ -20,19 +20,17 @@ class AgentMinimax:
         # Iterative Deepening
         try:
             while True:
-                # Interrompe se o tempo limite estourar antes da próxima profundidade
                 if time.time() - self.start_time >= self.time_limit:
                     break
 
-                self.nodes_expanded = 0  # Conserto de quantidade de nodes absurda
+                self.nodes_expanded = 0
                 current_best_move, _ = self.minimax(state, depth, True)
 
                 if current_best_move is not None:
                     best_move = current_best_move
                     completed_depth = depth 
-                    commited_nodes += self.nodes_expanded  # Conserto de quantidade de nodes absurda
+                    commited_nodes += self.nodes_expanded
 
-                # Conserto para depth absurdo
                 if time.time() - self.start_time >= self.time_limit:
                     break
 
@@ -59,11 +57,11 @@ class AgentMinimax:
             self.nodes_expanded += 1
 
             if winner == self.player:
-                return None, 10000 - depth
+                return None, 10000 + depth
             elif winner is None:
                 return None, 0
             else:
-                return None, -10000 + depth
+                return None, -10000 - depth
 
         if depth == 0:
             self.nodes_expanded += 1

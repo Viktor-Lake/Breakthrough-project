@@ -12,13 +12,13 @@ def main():
     agent1 = AgentAlphaBeta(
         player=1,
         heuristic_func=heuristic_material_and_advance,
-        time_limit=0.5
+        time_limit=1
     )
 
-    agent2 = AgentAlphaBeta(
+    agent2 = AgentMinimax(
         player=2,
         heuristic_func=heuristic_defensive_structures,
-        time_limit=0.5
+        time_limit=1
     )
 
     # Cria jogo

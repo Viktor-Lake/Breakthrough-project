@@ -2,7 +2,7 @@ def heuristic_material_and_advance(state, player):
     """
     Heurística 1: Combina a diferença de material e o avanço médio das peças.
     """
-    # Condição terminal implementada no agente
+    # Condição terminal implementada no agente, para evitar chamadas desnecessárias
     # is_term, winner = state.is_terminal()
     # if is_term:
     #     return 10000 if winner == player else -10000
@@ -26,7 +26,7 @@ def heuristic_defensive_structures(state, player):
     """
     Heurística 2: Foca em estruturas de apoio e evitar deixar peças desprotegidas.
     """
-    # Condição terminal implementada no agente
+    # Terminal condition implemented in agent
     # is_term, winner = state.is_terminal()
     # if is_term:
     #     return 10000 if winner == player else -10000

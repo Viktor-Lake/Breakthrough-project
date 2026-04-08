@@ -281,14 +281,15 @@ class BreakthroughUI:
             self.legal_moves = []
 
     def find_move_for_target(self, to_row: int, to_col: int):
+        # CHANGE: Iterate through actual legal moves from the engine
         for move in self.legal_moves:
             from_row, from_col, capture_direction = move
-            if capture_direction is None:
-                expected_row = from_row + 1 if self.state.current_player == 1 else from_row - 1
-                expected_col = from_col
-            else:
-                expected_row = from_row + 1 if self.state.current_player == 1 else from_row - 1
-                expected_col = from_col + capture_direction
+            
+            # Breakthrough movement logic: 
+            # Row always advances; Col stays same (None) or shifts by direction (-1, 1)
+            expected_row = from_row + 1 if self.state.current_player == 1 else from_row - 1
+            expected_col = from_col if capture_direction is None else from_col + capture_direction
+            
             if expected_row == to_row and expected_col == to_col:
                 return move
         return None
@@ -360,6 +361,8 @@ class BreakthroughUI:
 
         self.ai_thinking = True
         pygame.event.pump()
+        
+        # CHANGE: Pass self.state directly instead of creating a new GameState
         move, nodes, depth = agent.get_best_move(self.state)
 
         if move is None:
@@ -609,16 +612,16 @@ class BreakthroughUI:
 if __name__ == "__main__":
     ui = BreakthroughUI(
         size=8,
-        player1_mode="ai",
+        player1_mode="human",
         player2_mode="ai",
-        time_limit=5.0,
+        time_limit=1,
         agent_types={
             1: "alpha_beta",
-            2: "minimax",
+            2: "alpha_beta",
         },
         heuristics={
             1: "material_and_advance",
-            2: "material_and_advance",
+            2: "defensive_structures",
         },
     )
     ui.run()
