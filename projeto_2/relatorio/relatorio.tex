@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+
+% Pacotes básicos
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+% Margens
+\geometry{
+    left=3cm,
+    right=2cm,
+    top=3cm,
+    bottom=2cm
+}
+
+% Espaçamento entre linhas
+\onehalfspacing
+
+% Informações do documento
+\title{Título do Relatório}
+\author{Pedro Henrique dos Reis Arcoverde- 254719}
+\date{\today}
+
+\begin{document}
+
+% Capa
+\begin{titlepage}
+	\centering
+	{\large UNICAMP}\\[1.5cm]
+
+	{\Large MC 906}\\[2cm]
+
+	{\Huge \textbf{PROJETO 2 - PORTIFÓLIO}}\\[2cm]
+
+	{\large Pedro Henrique dos Reis Arcoverde-254719}\\[0.5cm]
+	{\large Professor: Anderson}\\[2cm]
+
+	{\large Cidade}\\
+	{\large \today}
+\end{titlepage}
+
+% Resumo
+\begin{abstract}
+	Este é o resumo do relatório. Aqui você descreve brevemente o objetivo, metodologia e resultados.
+\end{abstract}
+
+% Sumário
+\tableofcontents
+\newpage
+
+\section{Introdução}
+Apresente o tema do relatório, contexto e objetivos.
+
+\section{Fundamentação Teórica}
+Explique os conceitos teóricos relevantes.
+
+\subsection{Subseção Exemplo}
+Detalhamento de algum tópico específico.
+
+\section{Metodologia}
+Descreva como o trabalho foi realizado.
+
+\section{Experimentos}
+Para esta seção vamos começar a olhar para uma implementação real dos nosso modelos de inteligência artificial:
+Bellman e Q-Learning destrinchando as suas composições e alterando os valores das variáveis que regem o comportamento
+dois dois de forma a tentar extrair o máximo de informção sobre o funcionamento, estratégia e rendimentos no fluxo de
+decisão.
+
+Para começar, vamos fazer um leve retrospecto no que concerne à modelagem matemática dos dois modelos:
+\begin{itemize}
+	\item Modelo de Bellman para value iteration (Modelo Planejador): O que o modelo de Bellman faz em poucas palavras é
+	      tentar estar ciente de toda a matriz de probabilidade de transição entre os estados do nosso experimento de forma a
+	      nos retornar a sequência de ações ótima (claramente dentro das capacidades estabelecidas pelas nossas variáveis)
+	      \begin{equation}
+		      V(s) = \max_{a} \left( R(s,a) + \gamma \sum_{s'} P(s'|s,a) V(s') \right)
+	      \end{equation}
+	\item Modelo Q-Learning (Aprendizado na raça): Cai de paraquedas no ambiente a ser estudado e vai aos poucos entendendo
+	      como tomar as melhores decisões.
+	      \begin{equation}
+		      Q(s, a) = R(s, a) + \gamma \sum_{s'} P(s'|s,a) \max_{a'} Q(s', a')
+	      \end{equation}
+\end{itemize}
+
+\section{Discussão}
+Interprete os resultados.
+
+\section{Conclusão}
+Resumo final e possíveis trabalhos futuros.
+
+% Exemplo de figura
+% \section{Exemplo de Figura}
+% \begin{figure}[h!]
+% 	\centering
+% 	\includegraphics[width=0.5\textwidth]{exemplo.png}
+% 	\caption{Exemplo de imagem}
+% 	\label{fig:exemplo}
+% \end{figure}
+
+% Referências
+% \begin{thebibliography}{9}
+% 	\bibitem{ref1} Autor. \textit{Título do livro/artigo}. Editora, ano.
+% \end{thebibliography}
+
+\end{document}
