@@ -37,8 +37,7 @@ class PortfolioConfig:
 
     # Estados
     trend_window: int = 3
-    allow_short: bool = False   # Pesquisar "stock shorting" no Google
-
+    one_at_a_time: bool = True   # Uma compra/venda por vez. "= False" para tudo de uma vez
 
 class PortfolioEnvironment:
     """
@@ -83,6 +82,7 @@ class PortfolioEnvironment:
         self.episode_horizon: int = 0
 
         self.cash: float = float(self.config.initial_cash)
+        self.shares: int = 0
         self.position: int = self.POSITION_CASH
         self.entry_price: float = 0.0
         self.done: bool = False
@@ -108,6 +108,7 @@ class PortfolioEnvironment:
         self.current_step = 0
 
         self.cash = float(self.config.initial_cash)
+        self.shares = 0
         self.position = self.POSITION_CASH
         self.entry_price = 0.0
         self.done = False
@@ -134,17 +135,38 @@ class PortfolioEnvironment:
         # Executa a ação no preço atual
         if action == self.ACTION_BUY:
             if self.position == self.POSITION_CASH:
-                self.position = self.POSITION_HOLDING
-                self.entry_price = current_price
-                self.cash -= current_price * (1.0 + self.config.transaction_cost)
+                if self.config.one_at_a_time:
+                    shares_to_buy = 1
+                else:
+                    shares_to_buy = int(self.cash // (current_price * (1.0 + self.config.transaction_cost)))
+
+                if shares_to_buy > 0:
+                    cost = shares_to_buy * current_price * (1.0 + self.config.transaction_cost)
+                    self.cash -= cost
+                    self.shares += shares_to_buy
+                    self.position = self.POSITION_HOLDING
+                    self.entry_price = current_price
+                else:
+                    invalid_action = True
             else:
                 invalid_action = True
 
         elif action == self.ACTION_SELL:
-            if self.position == self.POSITION_HOLDING:
-                self.position = self.POSITION_CASH
-                self.cash += current_price * (1.0 - self.config.transaction_cost)
-                self.entry_price = 0.0
+            if self.position == self.POSITION_HOLDING and self.shares > 0:
+                if self.config.one_at_a_time:
+                    shares_to_sell = 1
+                else:
+                    shares_to_sell = self.shares
+
+                revenue = shares_to_sell * current_price * (1.0 - self.config.transaction_cost)
+                self.cash += revenue
+                self.shares -= shares_to_sell
+
+                if self.shares == 0:
+                    self.position = self.POSITION_CASH
+                    self.entry_price = 0.0
+                else:
+                    self.position = self.POSITION_HOLDING
             else:
                 invalid_action = True
 
@@ -174,6 +196,7 @@ class PortfolioEnvironment:
             "step": self.current_step,
             "price": round(float(self.prices[self.current_step]), 2),
             "cash": round(float(self.cash), 2),
+            "shares": int(self.shares),
             "position": int(self.position),
             "entry_price": round(float(self.entry_price), 2),
             "net_worth": round(float(net_worth), 2),
@@ -317,7 +340,7 @@ class PortfolioEnvironment:
         return trend * 2 + int(self.position)
 
     def _net_worth(self, price: float) -> float:
-        return float(self.cash + self.position * price)
+        return float(self.cash + self.shares * price)
 
     def decode_state(self, state: int) -> Tuple[str, str]:
         """Converte o estado codificado em rótulos legíveis."""
@@ -356,7 +379,7 @@ if __name__ == "__main__":
         Ex:
         price_source = "synthetic",
         horizon = 10,
-        seed = 15
+        seed = 63
 
     Se quiser ver todos os parâmetros, ir até a definição a partir da linha 9 do código
     '''
@@ -366,8 +389,9 @@ if __name__ == "__main__":
         market_symbol="PETR4.SA",   # Tá pegando da Petrobras
         market_start="2022-01-01",
         market_end="2024-01-01",
+        one_at_a_time=False,        # Gasta tudo de uma vez
         horizon=100,
-        seed=42
+        seed=15
     )
 
     env = PortfolioEnvironment(cfg)
@@ -392,6 +416,7 @@ if __name__ == "__main__":
             f"price={info['price']:7.2f} | "
             f"pos={info['position']} | "
             f"act={action_tags[action]} | "
+            f"shares={info['shares']:3d} | "
             f"cash={info['cash']:8.2f} | "
             f"net={info['net_worth']:8.2f} | "
             f"r={r:7.2f} | "
