@@ -190,3 +190,21 @@ if __name__ == "__main__":
     # 
     # q_results = runner.grid_search_q_learning(create_q_agent, alphas_to_test, gammas_to_test, num_episodes=2000)
     # save_results(q_results, "q_learning_grid_results.json")
+
+    # 3. Testando Q-Learning
+    # from environment import PortfolioEnvironment, PortfolioConfig
+    # from q_learning import QAgent
+    
+    # cfg = PortfolioConfig(market_symbol="PETR4.SA", horizon=100)
+    # env = PortfolioEnvironment(cfg)
+    
+    # Tentei um agente com aprendizado mais cauteloso
+    # agent = QAgent(num_actions=3, alpha=0.01, gamma=0.90)
+    
+    # runner = ExperimentRunner(env)
+        
+    # print("Iniciando Treinamento...")
+    # results = runner.run_q_learning_session(agent=agent, num_episodes=5000, epsilon_decay_rate=0.999)
+    
+    # recompensa_final = np.mean(results['rewards_history'][-100:])
+    # print(f"Resultado Final: {recompensa_final:.2f}")
