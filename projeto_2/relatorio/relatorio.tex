@@ -71,24 +71,97 @@ Bellman e Q-Learning destrinchando as suas composições e alterando os valores 
 dois dois de forma a tentar extrair o máximo de informção sobre o funcionamento, estratégia e rendimentos no fluxo de
 decisão.
 
-Para começar, vamos fazer um leve retrospecto no que concerne à modelagem matemática dos dois modelos:
+\subsection{Implementação das Equações de Bellman}
+Utilizou-se o algoritmo de \textit{Value Iteration} para determinar a política ótima através da
+atualização iterativa dos valores de estado $V(s)$:
+\[ V(s) \leftarrow \max_{a} \sum_{s'} T(s,a,s') [R(s,a,s') + \gamma V(s')] \]
+O experimento foi configurado com um fator de desconto $\gamma = 0.99$ e um critério de convergência $\theta = 1e-5$.
+\subsection{Análise de Resultados: Value Iteration}
+O algoritmo convergiu após \textbf{1.796 iterações}. Os resultados detalhados encontram-se na Tabela \ref{tab:v_table}.
+
+\begin{table}[h]
+	\centering
+	\caption{Valores de Estado ($V(s)$) e Política Aprendida}
+	\label{tab:v_table}
+	\begin{tabular}{l|c|c}
+		\hline
+		\textbf{Estado}   & \textbf{Valor $V(s)$} & \textbf{Ação Ótima} \\ \hline
+		0 (DOWN, CASH)    & 1,38E+09              & BUY                 \\
+		1 (DOWN, HOLDING) & 1,41E+09              & HOLD                \\
+		2 (FLAT, CASH)    & 1,34E+09              & SELL*               \\
+		3 (FLAT, HOLDING) & 1,36E+09              & HOLD                \\
+		4 (UP, CASH)      & 1,33E+09              & BUY                 \\
+		5 (UP, HOLDING)   & 1,32E+09              & SELL                \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection{Discussão Técnica}
+Observou-se uma magnitude extremamente elevada nos valores da \textit{V-Table} (na ordem de $10^9$). Este fenômeno é
+decorrente da combinação de um horizonte de planejamento longo com um fator de desconto $\gamma$ muito próximo
+da unidade em um ambiente com tendência de crescimento (\textit{drift}) positiva.
+
+\textbf{Análise Crítica:} A política ótima no Estado 2 indicou a ação de venda mesmo sem a posse do ativo
+(\textit{CASH}). Tecnicamente, a recompensa esperada a longo prazo tornou-se tão vasta que a penalidade estática por
+ação inválida ($r = -1.0$) tornou-se insignificante no cálculo do valor esperado.
+Para mitigar este comportamento e garantir a estabilidade da política, recomenda-se a normalização das recompensas
+ou a aplicação de penalidades proporcionais ao patrimônio líquido.
+
+\subsection{Análise Experimental: Q-Learning}
+
+Para avaliar o aprendizado \textit{model-free} e mitigar as a nomalias observadas no planejamento de Bellman,
+foi conduzida uma busca em grade (\textit{Grid Search}) com o algoritmo Q-Learning. A análise a seguir
+foca na configuração de melhor interpretabilidade e estabilidade, obtida com taxa de aprendizado
+$\alpha = 0.1$ e fator de desconto $\gamma = 0.9$.
+
+\subsubsection{Correção do Comportamento Anômalo (Ações Inválidas)}
+No algoritmo de \textit{Value Iteration}, a combinação de horizonte infinito e tendência positiva (\textit{drift})
+ofuscou a penalidade estática do ambiente ($r = -1.0$), levando o agente a tentar vender ativos que não possuía.
+O Q-Learning corrigiu este comportamento com sucesso.
+
+A inspeção da Tabela Q final revela que os valores esperados para ações inválidas convergiram quase perfeitamente
+para a magnitude da penalidade configurada. Por exemplo, no Estado 0 (\textit{DOWN, CASH}), o valor da ação \textit{SELL}
+atingiu $Q(s_0, a_2) \approx -0.966$. O mesmo ocorreu nos Estados 2 e 4. Isso comprova empíricamente que o agente
+aprendeu as restrições físicas do MDP interagindo com o ambiente, evitando ações punitivas.
+
+\subsubsection{Evolução da Curva de Aprendizado e Exploração}
+O histórico de recompensas reflete a transição direta da fase de exploração para a de explotação, controlada pelo
+decaimento da política $\epsilon$-greedy (de $\epsilon = 1.0$ até $\epsilon_{min} = 0.05$).
+
 \begin{itemize}
-	\item Modelo de Bellman para value iteration (Modelo Planejador): O que o modelo de Bellman faz em poucas palavras é
-	      tentar estar ciente de toda a matriz de probabilidade de transição entre os estados do nosso experimento de forma a
-	      nos retornar a sequência de ações ótima (claramente dentro das capacidades estabelecidas pelas nossas variáveis)
-	      \begin{equation}
-		      V(s) = \max_{a} \left( R(s,a) + \gamma \sum_{s'} P(s'|s,a) V(s') \right)
-	      \end{equation}
-	\item Modelo Q-Learning (Aprendizado na raça): Cai de paraquedas no ambiente a ser estudado e vai aos poucos entendendo
-	      como tomar as melhores decisões.
-	      \begin{equation}
-		      Q(s, a) = R(s, a) + \gamma \sum_{s'} P(s'|s,a) \max_{a'} Q(s', a')
-	      \end{equation}
+	\item \textbf{Fase Inicial (Alta Exploração):} Nos primeiros 50 episódios, o agente obteve recompensas altamente negativas (entre -30 e -45).
+	      Este déficit não provém primariamente de perdas de mercado, mas sim de multas operacionais frequentes devido à aleatoriedade
+	      das ações (tentativas contínuas de ações inválidas).
+	\item \textbf{Convergência (Alta Explotação):} Conforme $\epsilon$ decai para 0.05, a hemorragia de capital cessa.
+	      As recompensas nos últimos 100 episódios estabilizam-se em torno de $0.0$, demonstrando que o algoritmo aprendeu a interromper
+	      os erros operacionais e a preservar o patrimônio líquido.
 \end{itemize}
 
-\section{Discussão}
-Interprete os resultados.
+\subsubsection{Política Ótima Aprendida e Perfil de Risco}
+A extração da política ótima ($\arg\max_a Q(s,a)$) revelou o desenvolvimento de um agente com um perfil estritamente conservador
+e de alta aversão ao risco. A Tabela \ref{tab:q_policy} detalha as decisões aprendidas.
 
+\begin{table}[h]
+	\centering
+	\caption{Política de Investimento Aprendida (Q-Learning: $\alpha=0.1, \gamma=0.9$)}
+	\label{tab:q_policy}
+	\begin{tabular}{l|c|l}
+		\hline
+		\textbf{Estado do Mercado} & \textbf{Ação Ótima} & \textbf{Interpretação Financeira}                       \\ \hline
+		0 (DOWN, CASH)             & HOLD                & Preservação de capital em mercado de baixa.             \\
+		1 (DOWN, HOLDING)          & SELL                & Acionamento de \textit{Stop-Loss} para estancar perdas. \\
+		2 (FLAT, CASH)             & HOLD                & Aguarda sinal claro de tendência.                       \\
+		3 (FLAT, HOLDING)          & HOLD                & Mantém posição em consolidação.                         \\
+		4 (UP, CASH)               & HOLD                & Evita falsos rompimentos (aversão ao risco).            \\
+		5 (UP, HOLDING)            & SELL                & Realização de lucros (\textit{Take Profit}).            \\ \hline
+	\end{tabular}
+\end{table}
+
+\textbf{Discussão Técnica:} O comportamento mais contraintuitivo ocorre no Estado 4, onde o agente em caixa decide
+não comprar durante uma tendência de alta. Sob a ótica do Aprendizado por Reforço, isso é justificado pelo
+baixo $\alpha$ (0.1) em um ambiente sintético com ruído estocástico considerável. O agente foi punido sucessivamente
+por falsos sinais de alta durante o treinamento. Consequentemente, o modelo concluiu que a volatilidade inerente
+da compra supera o retorno seguro e garantido de manter o capital em caixa (que não sofre decaimento).
+O modelo priorizou, com sucesso, a sobrevivência ao invés da especulação agressiva.
 \section{Conclusão}
 Resumo final e possíveis trabalhos futuros.
 

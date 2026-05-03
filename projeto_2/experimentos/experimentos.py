@@ -165,46 +165,46 @@ def save_results(data: Any, filename: str):
 # ==========================================
 if __name__ == "__main__":
     # Importe as classes dos seus colegas quando estiverem prontas
-    # from environment import PortfolioEnv
-    # from q_learning import QAgent
-    # from bellman import ValueIterationAgent
+    from environment import PortfolioEnvironment, PortfolioConfig
+    from q_learning import QAgent
+    from bellman import BellmanAgent 
 
-    print("Este arquivo é um módulo de experimentação.")
-    print("Para usar, instancie os ambientes e agentes e chame o ExperimentRunner.")
-    
-    # --- Exemplo de script de execução principal ---
-    # env = PortfolioEnv()
-    # runner = ExperimentRunner(env)
-    
-    # 1. Testando Bellman
-    # bellman_agent = ValueIterationAgent(env_model=env.get_model(), gamma=0.99)
-    # bellman_results = runner.run_bellman_session(bellman_agent)
-    # save_results(bellman_results, "bellman_results.json")
-    
-    # 2. Grid Search Q-Learning
-    # def create_q_agent(alpha, gamma):
-    #     return QAgent(num_states=env.num_states, num_actions=env.num_actions, alpha=alpha, gamma=gamma)
+    # print("Iniciando teste de integração do Bellman...")
     #
-    # alphas_to_test = [0.1, 0.5, 0.9]
-    # gammas_to_test = [0.5, 0.9, 0.99]
-    # 
-    # q_results = runner.grid_search_q_learning(create_q_agent, alphas_to_test, gammas_to_test, num_episodes=2000)
-    # save_results(q_results, "q_learning_grid_results.json")
-
-    # 3. Testando Q-Learning
-    # from environment import PortfolioEnvironment, PortfolioConfig
-    # from q_learning import QAgent
+    # # 1. Cria o ambiente forçando o modo sintético
+    cfg = PortfolioConfig(price_source="synthetic")
+    env = PortfolioEnvironment(cfg)
     
     # cfg = PortfolioConfig(market_symbol="PETR4.SA", horizon=100)
     # env = PortfolioEnvironment(cfg)
-    
-    # Tentei um agente com aprendizado mais cauteloso
-    # agent = QAgent(num_actions=3, alpha=0.01, gamma=0.90)
-    
-    # runner = ExperimentRunner(env)
-        
-    # print("Iniciando Treinamento...")
-    # results = runner.run_q_learning_session(agent=agent, num_episodes=5000, epsilon_decay_rate=0.999)
-    
-    # recompensa_final = np.mean(results['rewards_history'][-100:])
-    # print(f"Resultado Final: {recompensa_final:.2f}")
+
+    runner = ExperimentRunner(env)
+    # modelo_mdp = env.get_transition_model(num_samples=50000)
+    #
+    # # 3. Cria o agente usando a variável gerada no passo anterior
+    # bellman_agent = BellmanAgent(
+    #     env_model=modelo_mdp, 
+    #     num_states=env.state_space_size, 
+    #     num_actions=env.action_space_size, 
+    #     gamma=0.99
+    # )
+
+    # 4. Roda o planejamento e mostra o resultado
+    # print("Política Ótima:", bellman_agent.get_policy())    
+    # bellman_results = runner.run_bellman_session(bellman_agent)
+    # save_results(bellman_results, "bellman_results.json")
+    #
+    # 2. Grid Search Q-Learning
+    def create_q_agent(alpha, gamma):
+        return QAgent(
+            num_states=env.state_space_size, 
+            num_actions=env.action_space_size, 
+            alpha=alpha, 
+            gamma=gamma
+        )
+    alphas_to_test = [0.1, 0.5, 0.9]
+    gammas_to_test = [0.5, 0.9, 0.99]
+
+    q_results = runner.grid_search_q_learning(create_q_agent, alphas_to_test, gammas_to_test, num_episodes=2000)
+    save_results(q_results, "q_learning_grid_results.json")
+

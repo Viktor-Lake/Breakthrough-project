@@ -367,7 +367,63 @@ class PortfolioEnvironment:
             if len(self.prices)
             else None,
         }
-
+    
+    def get_transition_model(self, num_samples: int = 50000) -> dict:
+        """
+        Constrói empiricamente a matriz de transição MDP P(s'|s,a) e R(s,a,s')
+        Exigido para o algoritmo de Bellman (Value Iteration).
+        """
+        from collections import defaultdict
+        
+        # Grava os contadores: trans_counts[state][action][next_state] = quantidade
+        trans_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        reward_sums = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+        
+        print(f"Construindo modelo MDP empiricamente com {num_samples} steps...")
+        
+        # Salva o estado atual do ambiente para não quebrar nada
+        old_config = self.config
+        
+        # Força config sintética para o Bellman ter um ambiente estocástico estável
+        self.config.price_source = "synthetic"
+        self.config.horizon = num_samples + 10
+        state = self.reset()
+        
+        for _ in range(num_samples):
+            action = int(self._rng.integers(0, self.action_space_size))
+            next_state, reward, done, _ = self.step(action)
+            
+            trans_counts[state][action][next_state] += 1
+            reward_sums[state][action][next_state] += reward
+            
+            if done:
+                state = self.reset()
+            else:
+                state = next_state
+                
+        # Restaura a config original
+        self.config = old_config
+        self.reset()
+        
+        # Converte as contagens em probabilidades para o Bellman
+        env_model = {}
+        for s in range(self.state_space_size):
+            env_model[s] = {}
+            for a in range(self.action_space_size):
+                total_transitions = sum(trans_counts[s][a].values())
+                env_model[s][a] = []
+                
+                if total_transitions > 0:
+                    for s_prime, count in trans_counts[s][a].items():
+                        prob = count / total_transitions
+                        avg_reward = reward_sums[s][a][s_prime] / count
+                        # Para o portfólio sintético contínuo, a transição final 'done' importa pouco para a política
+                        env_model[s][a].append((prob, s_prime, avg_reward, False))
+                else:
+                    # Se nunca visitou essa transição, adiciona um dummy para o Bellman não quebrar
+                    env_model[s][a].append((1.0, s, 0.0, False))
+                    
+        return env_model
 
 # Exemplo de uso
 

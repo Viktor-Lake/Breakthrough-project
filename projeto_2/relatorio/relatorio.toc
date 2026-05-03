@@ -4,5 +4,11 @@
 \contentsline {subsection}{\numberline {2.1}Subseção Exemplo}{2}{subsection.2.1}%
 \contentsline {section}{\numberline {3}Metodologia}{2}{section.3}%
 \contentsline {section}{\numberline {4}Experimentos}{2}{section.4}%
-\contentsline {section}{\numberline {5}Discussão}{3}{section.5}%
-\contentsline {section}{\numberline {6}Conclusão}{3}{section.6}%
+\contentsline {subsection}{\numberline {4.1}Implementação das Equações de Bellman}{2}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Análise de Resultados: Value Iteration}{2}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Discussão Técnica}{3}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Análise Experimental: Q-Learning}{3}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}Correção do Comportamento Anômalo (Ações Inválidas)}{3}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Evolução da Curva de Aprendizado e Exploração}{4}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Política Ótima Aprendida e Perfil de Risco}{4}{subsubsection.4.4.3}%
+\contentsline {section}{\numberline {5}Conclusão}{4}{section.5}%

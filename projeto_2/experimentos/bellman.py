@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import Dict, Any
 
-class BelllmanAgent:
+class BellmanAgent:
     def __init__(
         self, 
         env_model: Dict[int, Dict[int, list]], # {state: {action: [(prob, next_state, reward, done), ...]}}
