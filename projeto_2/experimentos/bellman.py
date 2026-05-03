@@ -136,7 +136,7 @@ if __name__ == "__main__":
         },
     }
  
-    agent = BelllmanAgent(
+    agent = BellmanAgent(
         env_model=mock_model,
         num_states=NUM_STATES,
         num_actions=NUM_ACTIONS,
