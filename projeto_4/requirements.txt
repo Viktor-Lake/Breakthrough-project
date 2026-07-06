@@ -9,3 +9,4 @@ shap
 matplotlib
 seaborn
 tqdm
+pyarrow
