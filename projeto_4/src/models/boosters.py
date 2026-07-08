@@ -87,7 +87,7 @@ def train_catboost(X_train, y_train, X_val, y_val):
     start_time = time.time()
     
     model = CatBoostClassifier(
-        iterations=1000,
+        iterations=100,
         learning_rate=0.03,
         depth=6,
         random_seed=42,

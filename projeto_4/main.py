@@ -16,6 +16,7 @@ from src.models.boosters import (
     train_lightgbm,
     train_catboost
 )
+from src.models.tabtransformer import train_tabtransformer
 from src.models.stacking import run_stacking_ensemble
 
 def main():
@@ -26,7 +27,14 @@ def main():
     start_pipeline_time = time.time()
     
     # 1. Carregamento e Pré-processamento dos dados
-    X_train_d, X_val_d, X_train_t, X_val_t, y_train, y_val = load_and_preprocess_data()
+    # OBS: as opções de normalização (dados numéricos) e de codificação (dados
+    # categóricos) são configuradas em src/models/data_loader.py, no bloco
+    # "CONFIGURAÇÃO DE PRÉ-PROCESSAMENTO" no topo do arquivo.
+    (
+        X_train_d, X_val_d, X_train_t, X_val_t,
+        y_train, y_val, cat_cols, num_cols,
+        preprocessing_info,
+    ) = load_and_preprocess_data()
     
     X_train_d_arr = X_train_d.values
     X_val_d_arr = X_val_d.values
@@ -40,7 +48,7 @@ def main():
     print("\n--- [Fase SSL] Treinando Denoising Autoencoder ---")
     dae_start = time.time()
     # Usamos 5 epochs para manter o tempo razoável mas de alta eficiência
-    weights_path = train_dae(X_train_d_arr, epochs=5, batch_size=512, lr=0.001)
+    weights_path = train_dae(X_train_d_arr, epochs=15, batch_size=512, lr=0.001)
     dae_time = time.time() - dae_start
     print(f"Autoencoder treinado com sucesso em {dae_time:.1f} segundos.")
     
@@ -114,7 +122,25 @@ def main():
     })
     model_preds["CatBoost"] = cat_preds
     
-    # 9. Executa Stacking Ensemble de Modelos
+    # 9. Treinamento do TabTransformer (Atenção sobre colunas categóricas + features numéricas)
+    print("\n--- [Classificação] Treinando TabTransformer ---")
+    tabtransformer_start = time.time()
+    tabtransformer_model, tabtransformer_preds = train_tabtransformer(
+        X_train_t, y_train, X_val_t, y_val,
+        cat_cols=cat_cols, num_cols=num_cols,
+        epochs=8, batch_size=512, lr=0.001,
+        embed_dim=32, n_heads=8, n_layers=3
+    )
+    tabtransformer_time = time.time() - tabtransformer_start
+    tabtransformer_auc = roc_auc_score(y_val, tabtransformer_preds)
+    results_summary.append({
+        "Model": "TabTransformer",
+        "Val ROC AUC": tabtransformer_auc,
+        "Train Time (s)": tabtransformer_time
+    })
+    model_preds["TabTransformer"] = tabtransformer_preds
+    
+    # 10. Executa Stacking Ensemble de Modelos
     ensemble_results = run_stacking_ensemble(model_preds, y_val)
     
     # Adiciona resultados do ensemble no sumário
@@ -125,12 +151,14 @@ def main():
             "Train Time (s)": np.nan  # Combinado de todos
         })
         
-    # 10. Apresenta Resultados e Gera Visualizações
+    # 11. Apresenta Resultados e Gera Visualizações
     df_results = pd.DataFrame(results_summary).sort_values(by="Val ROC AUC", ascending=False)
     
     print("\n=================================================================")
     print("                   RESULTADOS COMPARATIVOS FINAIS                ")
     print("=================================================================")
+    print(f"Normalização numérica utilizada : {preprocessing_info['num_normalization']}")
+    print(f"Encoding categórico utilizado   : {preprocessing_info['cat_encoding']}")
     print(df_results.to_string(index=False, formatters={"Val ROC AUC": "{:.5f}".format, "Train Time (s)": "{:.1f}".format}))
     print("=================================================================")
     
@@ -153,7 +181,14 @@ def main():
         legend=False
     )
     plt.xlim(0.5, 0.85)  # Ajusta limites para destacar a diferença no ROC AUC
-    plt.title("Comparação de Desempenho dos Modelos (Home Credit - ROC AUC)", fontsize=14, pad=15)
+
+    # Deixa explícito no próprio gráfico qual normalização/encoding foi usada
+    norm_label = preprocessing_info["num_normalization"]
+    enc_label = preprocessing_info["cat_encoding"]
+    subtitle = f"Normalização numérica: {norm_label}  |  Encoding categórico: {enc_label}"
+
+    plt.suptitle("Comparação de Desempenho dos Modelos (Home Credit - ROC AUC)", fontsize=14, y=0.99)
+    plt.title(subtitle, fontsize=10, style="italic", color="dimgray", pad=10)
     plt.xlabel("Validation ROC AUC Score", fontsize=12)
     plt.ylabel("Modelo", fontsize=12)
     
@@ -169,7 +204,9 @@ def main():
         )
         
     plt.tight_layout()
-    chart_path = "data/processed/model_comparison.png"
+    norm_tag = str(norm_label).lower().replace(" ", "_")
+    enc_tag = str(enc_label).lower().replace(" ", "_")
+    chart_path = f"data/processed/model_comparison_norm-{norm_tag}_enc-{enc_tag}.png"
     plt.savefig(chart_path, dpi=300)
     plt.close()
     print(f"Gráfico comparativo salvo em '{chart_path}'.")

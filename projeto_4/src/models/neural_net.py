@@ -62,7 +62,7 @@ class MLPClassifier(nn.Module):
         return logits
 
 def train_mlp(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, 
-              epochs: int = 10, batch_size: int = 512, lr: float = 0.001, 
+              epochs: int = 8, batch_size: int = 512, lr: float = 0.001, 
               pretrained_weights: str = None) -> tuple:
     """
     Treina a MLP de classificação e retorna o modelo treinado e as probabilidades de validação.
