@@ -244,6 +244,8 @@ def load_and_preprocess_data(
     df_num_val = pd.DataFrame(X_val_num_final, columns=num_cols)
 
     # 2. Tratamento categórico: nenhuma / Target Encoding / Embeddings
+    target_encoder = None  # <--- ADICIONE ESTA LINHA AQUI
+
     if cat_encoding is None or not cat_cols:
         df_cat_train = None
         df_cat_val = None
@@ -302,14 +304,73 @@ def load_and_preprocess_data(
         "cat_encoding": cat_encoding if cat_encoding else "Nenhuma",
     }
 
+    fitted_preprocessors = {
+        "imputer_num": imputer_num,
+        "scaler_num": scaler_num,
+        "encoder_tree": encoder_tree,
+        "target_encoder": target_encoder,
+        "cat_cols": cat_cols,  # Salvamos o nome das colunas para facilitar no teste
+        "num_cols": num_cols,
+        "feature_order": list(X_train_tree.columns)
+    }
+
     return (
         X_train_dense, X_val_dense,
         X_train_tree, X_val_tree,
         y_train, y_val,
         cat_cols, num_cols,
         preprocessing_info,
+        fitted_preprocessors
     )
 
+
+def transform_test_data(
+    test_df: pd.DataFrame,
+    pipeline_preproc: dict,
+    metadata: dict,
+):
+    """
+    Aplica ao conjunto de teste exatamente o mesmo pré-processamento
+    aprendido durante o treinamento.
+
+    Esta função NÃO realiza nenhum ajuste (fit) dos preprocessadores,
+    apenas reutiliza aqueles salvos pelo main.py.
+    """
+
+    id_col = "SK_ID_CURR"
+
+    if id_col in test_df.columns:
+        test_df = test_df.drop(columns=[id_col])
+
+    cat_cols = metadata["cat_cols"]
+    num_cols = metadata["num_cols"]
+    feature_order = metadata["feature_order"]
+
+    # -----------------------------
+    # Pipeline Tree (XGBoost)
+    # -----------------------------
+    X_tree = test_df.copy()
+
+    for col in cat_cols:
+        X_tree[col] = (
+            X_tree[col]
+            .astype(str)
+            .fillna("MISSING")
+        )
+
+    encoder_tree = pipeline_preproc["encoder_tree"]
+
+    if encoder_tree is not None:
+        X_tree[cat_cols] = encoder_tree.transform(
+            X_tree[cat_cols]
+        )
+
+    X_tree = X_tree.astype(np.float32)
+
+    # Garante exatamente a mesma ordem das colunas
+    X_tree = X_tree[feature_order]
+
+    return X_tree
 
 if __name__ == "__main__":
     result = load_and_preprocess_data()

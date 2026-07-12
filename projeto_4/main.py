@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 from sklearn.metrics import roc_auc_score
 
 # Importa módulos internos do projeto
@@ -33,7 +34,7 @@ def main():
     (
         X_train_d, X_val_d, X_train_t, X_val_t,
         y_train, y_val, cat_cols, num_cols,
-        preprocessing_info,
+        preprocessing_info, pipeline_preproc
     ) = load_and_preprocess_data()
     
     X_train_d_arr = X_train_d.values
@@ -166,6 +167,20 @@ def main():
     os.makedirs("data/processed", exist_ok=True)
     df_results.to_csv("data/processed/model_results.csv", index=False)
     print("Resultados salvos em 'data/processed/model_results.csv'.")
+
+    print("\n=================================================================")
+    print("                 SALVANDO MODELOS PARA O KAGGLE                  ")
+    print("=================================================================")
+    os.makedirs("data/processed/modelos_salvos", exist_ok=True)
+    
+    # 1. Salvando o Pipeline de Pré-processamento (Obrigatório)
+    joblib.dump(pipeline_preproc, "data/processed/saved_models/pipeline_preproc.joblib")
+    
+    # 2. Salvando o seu melhor modelo individual (XGBoost)
+    joblib.dump(
+        xgb_model,
+        os.path.join("data/processed/saved_models/best_model_xgboost.joblib")
+    )
     
     # Gera o gráfico de comparação
     plt.figure(figsize=(10, 6))
