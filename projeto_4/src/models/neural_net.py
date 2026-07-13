@@ -61,9 +61,10 @@ class MLPClassifier(nn.Module):
         logits = self.classifier(latent)
         return logits
 
-def train_mlp(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, 
-              epochs: int = 8, batch_size: int = 512, lr: float = 0.001, 
-              pretrained_weights: str = None) -> tuple:
+def train_mlp(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray,
+              epochs: int = 8, batch_size: int = 512, lr: float = 0.001,
+              pretrained_weights: str = None,
+              save_path: str = "data/processed/mlp_best_model.pth") -> tuple:
     """
     Treina a MLP de classificação e retorna o modelo treinado e as probabilidades de validação.
     """
@@ -89,8 +90,8 @@ def train_mlp(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val
     
     best_auc = 0.0
     best_preds = None
-    best_weights_path = "data/processed/mlp_best_model.pth"
-    os.makedirs("data/processed", exist_ok=True)
+    best_weights_path = save_path
+    os.makedirs(os.path.dirname(best_weights_path) or ".", exist_ok=True)
     
     for epoch in range(1, epochs + 1):
         # Modo Treino

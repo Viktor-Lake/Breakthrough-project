@@ -57,9 +57,10 @@ def main():
     print("\n--- [Classificação] Treinando MLP com Pesos do Autoencoder (Transfer Learning) ---")
     mlp_ssl_start = time.time()
     mlp_ssl_model, mlp_ssl_preds = train_mlp(
-        X_train_d_arr, y_train, X_val_d_arr, y_val, 
+        X_train_d_arr, y_train, X_val_d_arr, y_val,
         epochs=8, batch_size=512, lr=0.001,
-        pretrained_weights=weights_path
+        pretrained_weights=weights_path,
+        save_path="data/processed/mlp_ssl_best_model.pth"
     )
     mlp_ssl_time = time.time() - mlp_ssl_start
     mlp_ssl_auc = roc_auc_score(y_val, mlp_ssl_preds)
@@ -74,9 +75,10 @@ def main():
     print("\n--- [Classificação] Treinando MLP do Zero (Sem Pre-treino) ---")
     mlp_scratch_start = time.time()
     mlp_scratch_model, mlp_scratch_preds = train_mlp(
-        X_train_d_arr, y_train, X_val_d_arr, y_val, 
+        X_train_d_arr, y_train, X_val_d_arr, y_val,
         epochs=8, batch_size=512, lr=0.001,
-        pretrained_weights=None
+        pretrained_weights=None,
+        save_path="data/processed/mlp_scratch_best_model.pth"
     )
     mlp_scratch_time = time.time() - mlp_scratch_start
     mlp_scratch_auc = roc_auc_score(y_val, mlp_scratch_preds)

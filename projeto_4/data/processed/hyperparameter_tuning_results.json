@@ -1,0 +1,47 @@
+[
+  {
+    "model": "XGBoost",
+    "baseline_val_auc": 0.78691,
+    "tuned_val_auc": 0.7820024457879607,
+    "delta": -0.00491,
+    "best_params": {
+      "colsample_bytree": 0.7599443886861021,
+      "learning_rate": 0.01653319284990616,
+      "max_depth": 6,
+      "min_child_weight": 3,
+      "n_estimators": 563,
+      "reg_alpha": 0.5142344384136116,
+      "reg_lambda": 1.684829137724085,
+      "subsample": 0.6185801650879991
+    }
+  },
+  {
+    "model": "LightGBM",
+    "baseline_val_auc": 0.78379,
+    "tuned_val_auc": 0.7822644784673158,
+    "delta": -0.00153,
+    "best_params": {
+      "colsample_bytree": 0.8253152871382157,
+      "learning_rate": 0.06395831035558826,
+      "min_child_samples": 94,
+      "n_estimators": 252,
+      "num_leaves": 16,
+      "reg_alpha": 0.6842330265121569,
+      "reg_lambda": 0.8803049874792026,
+      "subsample": 0.6488152939379115
+    }
+  },
+  {
+    "model": "CatBoost",
+    "baseline_val_auc": 0.78279,
+    "tuned_val_auc": 0.7833353834833149,
+    "delta": 0.00055,
+    "best_params": {
+      "border_count": 195,
+      "depth": 5,
+      "iterations": 559,
+      "l2_leaf_reg": 7.798252692858872,
+      "learning_rate": 0.06952182242877426
+    }
+  }
+]
